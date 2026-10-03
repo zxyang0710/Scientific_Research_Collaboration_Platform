@@ -1,7 +1,5 @@
 package com.campus.research.dto;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -22,8 +20,6 @@ public final class TaskDtos {
             Long assigneeId,
             String priority,
             String status,
-            @Min(value = 0, message = "进度不能小于 0")
-            @Max(value = 100, message = "进度不能大于 100") Integer progress,
             LocalDate deadline) {
     }
 
@@ -40,7 +36,6 @@ public final class TaskDtos {
             String creatorName,
             String priority,
             String status,
-            Integer progress,
             LocalDate deadline,
             LocalDateTime createdAt,
             LocalDateTime updatedAt) {

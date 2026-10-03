@@ -27,7 +27,7 @@ export const taskApi = {
   get: (id) => http.get(`/tasks/${id}`),
   create: (data) => http.post('/tasks', data),
   update: (id, data) => http.put(`/tasks/${id}`, data),
-  updateProgress: (id, data) => http.put(`/tasks/${id}/progress`, data),
+  updateStatus: (id, data) => http.put(`/tasks/${id}/status`, data),
   remove: (id) => http.delete(`/tasks/${id}`)
 }
 

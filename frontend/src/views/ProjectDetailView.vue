@@ -87,14 +87,6 @@ async function removeTask(task) {
   load()
 }
 
-async function updateTaskProgress(task, progress) {
-  const data = { progress: Number(progress) }
-  if (Number(progress) === 100) data.status = 'DONE'
-  const updated = await taskApi.updateProgress(task.id, data)
-  const index = detail.value.tasks.findIndex((item) => item.id === updated.id)
-  if (index >= 0) detail.value.tasks[index] = updated
-}
-
 function openPaper(paper = null) {
   editingPaper.value = paper
   paperModalOpen.value = true
@@ -197,7 +189,7 @@ onMounted(load)
             <Edit3 :size="16" />
             编辑项目
           </button>
-          <button class="btn btn-primary" type="button" @click="openTask()">
+          <button v-if="isManager" class="btn btn-primary" type="button" @click="openTask()">
             <Plus :size="16" />
             新建任务
           </button>
@@ -291,7 +283,6 @@ onMounted(load)
                 <span>{{ task.assigneeName }} · 截止 {{ formatDate(task.deadline) }}</span>
               </div>
               <StatusBadge :value="task.status" :map="taskStatusMap" />
-              <span class="compact-task__progress">{{ task.progress }}%</span>
             </article>
           </div>
         </article>
@@ -302,9 +293,9 @@ onMounted(load)
           <div class="surface-header">
             <div>
               <h3 class="surface-title">任务清单</h3>
-              <p class="surface-hint">直接调整进度可以同步更新项目任务状态</p>
+              <p class="surface-hint">更新任务状态即可同步协作进展</p>
             </div>
-            <button class="btn btn-primary" type="button" @click="openTask()">
+            <button v-if="isManager" class="btn btn-primary" type="button" @click="openTask()">
               <Plus :size="16" /> 新建任务
             </button>
           </div>
@@ -316,7 +307,6 @@ onMounted(load)
                   <th>负责人</th>
                   <th>优先级</th>
                   <th>截止日期</th>
-                  <th style="width: 170px">完成进度</th>
                   <th>状态</th>
                   <th style="width: 100px">操作</th>
                 </tr>
@@ -337,26 +327,10 @@ onMounted(load)
                   <td :class="{ 'text-danger': task.deadline && new Date(task.deadline) < new Date() && task.status !== 'DONE' }">
                     {{ formatDate(task.deadline) }}
                   </td>
-                  <td>
-                    <div class="inline-progress">
-                      <input
-                        :value="task.progress"
-                        type="range"
-                        min="0"
-                        max="100"
-                        step="5"
-                        @change="updateTaskProgress(task, $event.target.value)"
-                      />
-                      <span>{{ task.progress }}%</span>
-                    </div>
-                  </td>
                   <td><StatusBadge :value="task.status" :map="taskStatusMap" /></td>
                   <td>
                     <div class="row-actions">
-                      <button class="icon-btn" type="button" title="编辑任务" @click="openTask(task)">
-                        <Edit3 :size="15" />
-                      </button>
-                      <button class="icon-btn danger" type="button" title="删除任务" @click="removeTask(task)">
+                      <button v-if="isManager" class="icon-btn danger" type="button" title="删除任务" @click="removeTask(task)">
                         <Trash2 :size="15" />
                       </button>
                     </div>
@@ -368,7 +342,7 @@ onMounted(load)
           <div v-else class="empty-state">
             <CheckCircle2 :size="36" />
             <strong>暂无科研任务</strong>
-            <button class="btn btn-primary" type="button" style="margin-top: 14px" @click="openTask()">新建任务</button>
+            <button v-if="isManager" class="btn btn-primary" type="button" style="margin-top: 14px" @click="openTask()">新建任务</button>
           </div>
         </div>
       </section>
@@ -786,35 +760,10 @@ onMounted(load)
   font-size: 10px;
 }
 
-.compact-task__progress {
-  color: var(--ink-700);
-  font-size: 11px;
-  font-weight: 700;
-  text-align: right;
-}
-
 .surface-hint {
   margin-top: 2px;
   color: var(--ink-500);
   font-size: 10px;
-}
-
-.inline-progress {
-  display: grid;
-  grid-template-columns: minmax(80px, 1fr) 35px;
-  align-items: center;
-  gap: 7px;
-}
-
-.inline-progress input {
-  width: 100%;
-  accent-color: var(--teal-700);
-}
-
-.inline-progress span {
-  color: var(--ink-700);
-  font-size: 10px;
-  font-weight: 700;
 }
 
 .row-actions {
@@ -1077,8 +1026,5 @@ onMounted(load)
     grid-template-columns: 4px minmax(0, 1fr) auto;
   }
 
-  .compact-task__progress {
-    display: none;
-  }
 }
 </style>

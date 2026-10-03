@@ -9,15 +9,16 @@ import com.campus.research.dto.TaskDtos.TaskView;
 import com.campus.research.entity.ProjectMember;
 import com.campus.research.entity.ResearchProject;
 import com.campus.research.entity.ResearchTask;
+import com.campus.research.entity.User;
 import com.campus.research.mapper.ProjectMemberMapper;
 import com.campus.research.mapper.ResearchTaskMapper;
+import com.campus.research.mapper.UserMapper;
 import com.campus.research.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,6 +29,7 @@ public class TaskService {
 
     private final ResearchTaskMapper taskMapper;
     private final ProjectMemberMapper memberMapper;
+    private final UserMapper userMapper;
     private final ProjectAccessService accessService;
     private final MappingService mappingService;
     private final NotificationService notificationService;
@@ -44,7 +46,12 @@ public class TaskService {
                 return new PageResult<>(List.of(), 0, page, size, 0);
             }
         }
+
         Long effectiveAssignee = Boolean.TRUE.equals(mine) ? SecurityUtils.currentUserId() : assigneeId;
+        if (isRestrictedStudent()) {
+            effectiveAssignee = SecurityUtils.currentUserId();
+        }
+
         Page<ResearchTask> result = taskMapper.selectPage(new Page<>(page, size),
                 Wrappers.<ResearchTask>lambdaQuery()
                         .eq(projectId != null, ResearchTask::getProjectId, projectId)
@@ -62,12 +69,15 @@ public class TaskService {
     public TaskView get(Long id) {
         ResearchTask task = requireTask(id);
         accessService.requireMember(task.getProjectId());
+        if (isRestrictedStudent() && !SecurityUtils.currentUserId().equals(task.getAssigneeId())) {
+            throw new BusinessException(403, "只能查看分配给自己的任务");
+        }
         return mappingService.toTaskViews(List.of(task)).getFirst();
     }
 
     @Transactional
     public TaskView create(TaskRequest request) {
-        accessService.requireMember(request.projectId());
+        accessService.requireManager(request.projectId());
         validateAssignee(request.projectId(), request.assigneeId());
         ResearchTask task = new ResearchTask();
         apply(task, request);
@@ -86,7 +96,7 @@ public class TaskService {
     @Transactional
     public TaskView update(Long id, TaskRequest request) {
         ResearchTask task = requireTask(id);
-        accessService.requireCreatorOrManager(task.getProjectId(), task.getCreatorId());
+        accessService.requireManager(task.getProjectId());
         if (!task.getProjectId().equals(request.projectId())) {
             throw new BusinessException("任务所属项目不可变更");
         }
@@ -102,29 +112,20 @@ public class TaskService {
     }
 
     @Transactional
-    public TaskView updateProgress(Long id, Integer progress, String status) {
+    public TaskView updateStatus(Long id, String status) {
         ResearchTask task = requireTask(id);
         accessService.requireMember(task.getProjectId());
         if (!SecurityUtils.currentUserId().equals(task.getAssigneeId())
                 && !SecurityUtils.currentUserId().equals(task.getCreatorId())) {
             accessService.requireManager(task.getProjectId());
         }
-        if (progress != null) {
-            task.setProgress(Math.max(0, Math.min(100, progress)));
-            if (task.getProgress() == 100 && !StringUtils.hasText(status)) {
-                task.setStatus("DONE");
-            }
-        }
         if (StringUtils.hasText(status)) {
             task.setStatus(status);
-            if ("DONE".equals(status)) {
-                task.setProgress(100);
-            }
         }
         taskMapper.updateById(task);
         if (task.getCreatorId() != null && !task.getCreatorId().equals(SecurityUtils.currentUserId())) {
-            notificationService.send(task.getCreatorId(), SecurityUtils.currentUserId(), "任务进度已更新",
-                    "“" + task.getTitle() + "”的进度更新为 " + task.getProgress() + "%。",
+            notificationService.send(task.getCreatorId(), SecurityUtils.currentUserId(), "任务状态已更新",
+                    "“" + task.getTitle() + "”的状态已更新为 " + task.getStatus() + "。",
                     "TASK", task.getId(), "/tasks");
         }
         return mappingService.toTaskViews(List.of(task)).getFirst();
@@ -133,7 +134,7 @@ public class TaskService {
     @Transactional
     public void delete(Long id) {
         ResearchTask task = requireTask(id);
-        accessService.requireCreatorOrManager(task.getProjectId(), task.getCreatorId());
+        accessService.requireManager(task.getProjectId());
         taskMapper.deleteById(id);
     }
 
@@ -165,7 +166,6 @@ public class TaskService {
         task.setAssigneeId(request.assigneeId());
         task.setPriority(request.priority());
         task.setStatus(request.status());
-        task.setProgress(request.progress());
         task.setDeadline(request.deadline());
     }
 
@@ -176,10 +176,13 @@ public class TaskService {
         if (!StringUtils.hasText(task.getStatus())) {
             task.setStatus("TODO");
         }
-        if (task.getProgress() == null) {
-            task.setProgress("DONE".equals(task.getStatus()) ? 100 : 0);
-        } else {
-            task.setProgress(Math.max(0, Math.min(100, task.getProgress())));
+    }
+
+    private boolean isRestrictedStudent() {
+        if (SecurityUtils.isAdmin()) {
+            return false;
         }
+        User user = userMapper.selectById(SecurityUtils.currentUserId());
+        return user != null && "学生".equals(user.getTitle());
     }
 }

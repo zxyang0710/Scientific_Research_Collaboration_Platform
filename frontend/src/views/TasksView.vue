@@ -7,7 +7,6 @@ import {
   ChevronRight,
   CircleDashed,
   ListTodo,
-  Plus,
   Search
 } from 'lucide-vue-next'
 import { projectApi, taskApi } from '../api'
@@ -97,7 +96,7 @@ async function changeProject(value) {
 }
 
 async function changeStatus(task, status) {
-  await taskApi.updateProgress(task.id, { status, progress: status === 'DONE' ? 100 : undefined })
+  await taskApi.updateStatus(task.id, { status })
   load()
 }
 
@@ -126,10 +125,6 @@ onMounted(load)
         <h2 class="page-title">科研任务</h2>
         <p class="page-subtitle">统一查看项目任务、个人待办和推进状态，保持协作节奏。</p>
       </div>
-      <button class="btn btn-primary" type="button" :disabled="!projects.length" @click="openCreate()">
-        <Plus :size="16" />
-        新建任务
-      </button>
     </header>
 
     <section class="surface task-toolbar">
@@ -183,16 +178,9 @@ onMounted(load)
             >
               <div class="task-card__head">
                 <StatusBadge :value="task.priority" :map="priorityMap" />
-                <button class="task-card__edit" type="button" @click="openCreate(task)">编辑</button>
               </div>
-              <h3 @click="openCreate(task)">{{ task.title }}</h3>
+              <h3>{{ task.title }}</h3>
               <p>{{ task.projectName }}</p>
-              <div class="task-card__progress">
-                <div class="progress-track">
-                  <div class="progress-fill" :style="{ width: `${task.progress}%` }" />
-                </div>
-                <span>{{ task.progress }}%</span>
-              </div>
               <div class="task-card__foot">
                 <div class="user-cell">
                   <UserAvatar :name="task.assigneeName" :src="task.assigneeAvatar" size="sm" />
@@ -209,7 +197,6 @@ onMounted(load)
                   <option value="BLOCKED">已阻塞</option>
                   <option value="DONE">已完成</option>
                 </select>
-                <button class="btn btn-ghost text-danger" type="button" @click="remove(task)">删除</button>
               </div>
             </article>
             <div v-if="!columnTasks(column.key).length" class="kanban-empty">
@@ -357,11 +344,6 @@ onMounted(load)
   color: var(--ink-900);
   font-size: 13px;
   line-height: 1.55;
-  cursor: pointer;
-}
-
-.task-card h3:hover {
-  color: var(--teal-700);
 }
 
 .task-card > p {
@@ -371,21 +353,6 @@ onMounted(load)
   font-size: 10px;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.task-card__progress {
-  display: grid;
-  grid-template-columns: 1fr 32px;
-  align-items: center;
-  gap: 7px;
-  margin-top: 13px;
-}
-
-.task-card__progress span {
-  color: var(--ink-700);
-  font-size: 10px;
-  font-weight: 700;
-  text-align: right;
 }
 
 .task-card__foot {

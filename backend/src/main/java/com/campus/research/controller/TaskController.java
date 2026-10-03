@@ -54,13 +54,11 @@ public class TaskController {
         return ApiResponse.success("任务更新成功", taskService.update(id, request));
     }
 
-    @PutMapping("/{id}/progress")
-    public ApiResponse<TaskView> updateProgress(@PathVariable Long id,
-                                                @RequestBody Map<String, Object> body) {
-        Integer progress = body.get("progress") == null
-                ? null : Integer.valueOf(String.valueOf(body.get("progress")));
+    @PutMapping("/{id}/status")
+    public ApiResponse<TaskView> updateStatus(@PathVariable Long id,
+                                              @RequestBody Map<String, Object> body) {
         String status = body.get("status") == null ? null : String.valueOf(body.get("status"));
-        return ApiResponse.success("任务进度更新成功", taskService.updateProgress(id, progress, status));
+        return ApiResponse.success("任务状态更新成功", taskService.updateStatus(id, status));
     }
 
     @DeleteMapping("/{id}")

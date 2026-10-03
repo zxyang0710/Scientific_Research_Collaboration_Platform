@@ -19,7 +19,6 @@ const form = reactive({
   assigneeId: null,
   priority: 'MEDIUM',
   status: 'TODO',
-  progress: 0,
   deadline: ''
 })
 
@@ -34,7 +33,6 @@ watch(() => props.task, (value) => {
       assigneeId: value.assigneeId,
       priority: value.priority,
       status: value.status,
-      progress: value.progress,
       deadline: value.deadline || ''
     })
   }
@@ -51,10 +49,11 @@ async function submit() {
       ...form,
       projectId: Number(form.projectId),
       assigneeId: form.assigneeId ? Number(form.assigneeId) : null,
-      progress: Number(form.progress || 0),
       deadline: form.deadline || null
     }
-    const result = props.task ? await taskApi.update(props.task.id, payload) : await taskApi.create(payload)
+    const result = props.task
+      ? await taskApi.update(props.task.id, payload)
+      : await taskApi.create(payload)
     ElMessage.success(props.task ? '任务更新成功' : '任务创建成功')
     emit('saved', result)
   } finally {
@@ -73,7 +72,7 @@ async function submit() {
       <div class="field">
         <label for="task-assignee">负责人</label>
         <select id="task-assignee" v-model="form.assigneeId" class="select">
-          <option :value="null">暂不指派</option>
+          <option :value="null">暂不指定</option>
           <option v-for="member in members" :key="member.userId" :value="member.userId">
             {{ member.realName }} · {{ member.department || member.title }}
           </option>
@@ -101,10 +100,6 @@ async function submit() {
         <input id="task-deadline" v-model="form.deadline" class="input" type="date" />
       </div>
       <div class="field form-span-2">
-        <label for="task-progress">完成进度：{{ form.progress }}%</label>
-        <input id="task-progress" v-model.number="form.progress" class="progress-input" type="range" min="0" max="100" step="5" />
-      </div>
-      <div class="field form-span-2">
         <label for="task-description">任务说明</label>
         <textarea id="task-description" v-model.trim="form.description" class="textarea" placeholder="补充交付标准、相关材料或注意事项" />
       </div>
@@ -117,10 +112,3 @@ async function submit() {
     </template>
   </BaseModal>
 </template>
-
-<style scoped>
-.progress-input {
-  width: 100%;
-  accent-color: var(--teal-700);
-}
-</style>

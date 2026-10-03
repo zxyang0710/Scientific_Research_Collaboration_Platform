@@ -22,6 +22,5 @@ public class ResearchTask extends BaseEntity {
     private Long creatorId;
     private String priority;
     private String status;
-    private Integer progress;
     private LocalDate deadline;
 }

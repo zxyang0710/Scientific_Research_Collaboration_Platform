@@ -86,19 +86,19 @@ public class DataInitializer implements CommandLineRunner {
         member(project3.getId(), chen.getId(), "MEMBER");
 
         task(project1.getId(), "完成多模态数据采集规范 V2", "统一图像、文本和传感器数据标注字段。",
-                wang.getId(), zhang.getId(), "HIGH", "IN_PROGRESS", 70, LocalDate.now().plusDays(8));
+                wang.getId(), zhang.getId(), "HIGH", "IN_PROGRESS", LocalDate.now().plusDays(8));
         task(project1.getId(), "视觉编码模块消融实验", "完成三个公开数据集上的基线对比与消融实验。",
-                chen.getId(), zhang.getId(), "HIGH", "IN_PROGRESS", 45, LocalDate.now().plusDays(14));
+                chen.getId(), zhang.getId(), "HIGH", "IN_PROGRESS", LocalDate.now().plusDays(14));
         task(project1.getId(), "搭建跨模态检索演示系统", "实现可交互的跨模态检索原型。",
-                li.getId(), zhang.getId(), "MEDIUM", "TODO", 10, LocalDate.now().plusDays(35));
+                li.getId(), zhang.getId(), "MEDIUM", "TODO", LocalDate.now().plusDays(35));
         task(project1.getId(), "阶段成果技术报告", "整理第一阶段研究进展与实验结果。",
-                zhang.getId(), zhang.getId(), "MEDIUM", "DONE", 100, LocalDate.now().minusDays(3));
+                zhang.getId(), zhang.getId(), "MEDIUM", "DONE", LocalDate.now().minusDays(3));
         task(project2.getId(), "调研联邦学习隐私攻击方法", "形成隐私威胁分类和防御策略综述。",
-                chen.getId(), zhang.getId(), "HIGH", "IN_PROGRESS", 55, LocalDate.now().plusDays(12));
+                chen.getId(), zhang.getId(), "HIGH", "IN_PROGRESS", LocalDate.now().plusDays(12));
         task(project2.getId(), "设计细粒度访问控制模型", "根据科研数据分级分类设计访问控制策略。",
-                wang.getId(), zhang.getId(), "HIGH", "TODO", 20, LocalDate.now().plusDays(30));
+                wang.getId(), zhang.getId(), "HIGH", "TODO", LocalDate.now().plusDays(30));
         task(project3.getId(), "课程试点方案设计", "确定试点班级、教学流程与数据采集边界。",
-                chen.getId(), li.getId(), "MEDIUM", "TODO", 0, LocalDate.now().plusDays(20));
+                chen.getId(), li.getId(), "MEDIUM", "TODO", LocalDate.now().plusDays(20));
 
         file(project1.getId(), zhang.getId(), "多模态研究方案.pdf", "application/pdf", 2480000, "DOCUMENT", "项目总体研究方案");
         file(project1.getId(), wang.getId(), "数据采集规范V1.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", 680000, "DOCUMENT", "第一阶段数据规范");
@@ -177,7 +177,7 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void task(Long projectId, String title, String description, Long assigneeId, Long creatorId,
-                      String priority, String status, int progress, LocalDate deadline) {
+                      String priority, String status, LocalDate deadline) {
         ResearchTask task = new ResearchTask();
         task.setProjectId(projectId);
         task.setTitle(title);
@@ -186,7 +186,6 @@ public class DataInitializer implements CommandLineRunner {
         task.setCreatorId(creatorId);
         task.setPriority(priority);
         task.setStatus(status);
-        task.setProgress(progress);
         task.setDeadline(deadline);
         taskMapper.insert(task);
     }

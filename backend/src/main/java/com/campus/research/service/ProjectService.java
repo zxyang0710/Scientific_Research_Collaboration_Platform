@@ -83,11 +83,16 @@ public class ProjectService {
         ResearchProject project = accessService.requireProject(id);
         ProjectView projectView = mappingService.toProjectViews(List.of(project)).getFirst();
         List<MemberView> members = members(id);
-        List<TaskView> tasks = mappingService.toTaskViews(taskMapper.selectList(
-                Wrappers.<ResearchTask>lambdaQuery()
-                        .eq(ResearchTask::getProjectId, id)
-                        .orderByAsc(ResearchTask::getStatus)
-                        .orderByDesc(ResearchTask::getUpdatedAt)));
+        var taskQuery = Wrappers.<ResearchTask>lambdaQuery()
+                .eq(ResearchTask::getProjectId, id)
+                .orderByAsc(ResearchTask::getStatus)
+                .orderByDesc(ResearchTask::getUpdatedAt);
+        User currentUser = userMapper.selectById(SecurityUtils.currentUserId());
+        if (!SecurityUtils.isAdmin() && currentUser != null && "学生".equals(currentUser.getTitle())
+                && !isProjectManager(id)) {
+            taskQuery.eq(ResearchTask::getAssigneeId, SecurityUtils.currentUserId());
+        }
+        List<TaskView> tasks = mappingService.toTaskViews(taskMapper.selectList(taskQuery));
         List<PaperView> papers = mappingService.toPaperViews(
                 paperMapper.selectList(Wrappers.<com.campus.research.entity.ResearchPaper>lambdaQuery()
                         .eq(com.campus.research.entity.ResearchPaper::getProjectId, id)
@@ -97,6 +102,18 @@ public class ProjectService {
         long discussionCount = discussionMapper.selectCount(Wrappers.<ProjectDiscussion>lambdaQuery()
                 .eq(ProjectDiscussion::getProjectId, id));
         return new ProjectDetail(projectView, members, tasks, papers, fileCount, discussionCount);
+    }
+
+    private boolean isProjectManager(Long projectId) {
+        ResearchProject project = accessService.requireProject(projectId);
+        if (project.getLeaderId().equals(SecurityUtils.currentUserId()) || SecurityUtils.isAdmin()) {
+            return true;
+        }
+        ProjectMember member = memberMapper.selectOne(Wrappers.<ProjectMember>lambdaQuery()
+                .eq(ProjectMember::getProjectId, projectId)
+                .eq(ProjectMember::getUserId, SecurityUtils.currentUserId()));
+        return member != null && ("LEADER".equals(member.getProjectRole())
+                || "MANAGER".equals(member.getProjectRole()));
     }
 
     @Transactional

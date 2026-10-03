@@ -58,7 +58,7 @@ class ResearchApiIntegrationTest {
     }
 
     @Test
-    void taskCanBeCreatedAndProgressUpdated() throws Exception {
+    void taskCanBeCreatedAndStatusUpdated() throws Exception {
         String createResponse = mockMvc.perform(post("/api/tasks")
                         .header("Authorization", bearer())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -69,7 +69,6 @@ class ResearchApiIntegrationTest {
                                 "assigneeId", 2,
                                 "priority", "HIGH",
                                 "status", "TODO",
-                                "progress", 0,
                                 "deadline", "2026-12-31"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.title").value("集成测试任务"))
@@ -77,12 +76,11 @@ class ResearchApiIntegrationTest {
         JsonNode data = objectMapper.readTree(createResponse).path("data");
         long taskId = data.path("id").asLong();
 
-        mockMvc.perform(put("/api/tasks/{id}/progress", taskId)
+        mockMvc.perform(put("/api/tasks/{id}/status", taskId)
                         .header("Authorization", bearer())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(Map.of("progress", 100))))
+                        .content(objectMapper.writeValueAsString(Map.of("status", "DONE"))))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.progress").value(100))
                 .andExpect(jsonPath("$.data.status").value("DONE"));
     }
 

@@ -89,7 +89,7 @@ public class MappingService {
                     task.getAssigneeId(), assignee == null ? "待认领" : assignee.getRealName(),
                     assignee == null ? null : assignee.getAvatar(), task.getCreatorId(),
                     creator == null ? "未知" : creator.getRealName(), task.getPriority(), task.getStatus(),
-                    task.getProgress(), task.getDeadline(), task.getCreatedAt(), task.getUpdatedAt());
+                    task.getDeadline(), task.getCreatedAt(), task.getUpdatedAt());
         }).toList();
     }
 
