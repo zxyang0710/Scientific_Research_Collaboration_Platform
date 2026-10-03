@@ -94,7 +94,7 @@ onMounted(async () => {
         <select id="project-leader" v-model="form.leaderId" class="select">
           <option :value="null">当前用户</option>
           <option v-for="user in users" :key="user.id" :value="user.id">
-            {{ user.realName }} · {{ user.department || user.title }}
+            {{ user.realName }} · {{ user.department || user.identity }}
           </option>
         </select>
       </div>

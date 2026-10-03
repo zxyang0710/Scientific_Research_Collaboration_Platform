@@ -64,7 +64,7 @@ public final class ProjectDtos {
             String username,
             String realName,
             String department,
-            String title,
+            String identity,
             String avatar,
             String projectRole,
             LocalDateTime joinedAt) {

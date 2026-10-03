@@ -88,8 +88,7 @@ public class ProjectService {
                 .orderByAsc(ResearchTask::getStatus)
                 .orderByDesc(ResearchTask::getUpdatedAt);
         User currentUser = userMapper.selectById(SecurityUtils.currentUserId());
-        if (!SecurityUtils.isAdmin() && currentUser != null && "学生".equals(currentUser.getTitle())
-                && !isProjectManager(id)) {
+        if (!SecurityUtils.isAdmin() && currentUser != null && "学生".equals(currentUser.getTitle())) {
             taskQuery.eq(ResearchTask::getAssigneeId, SecurityUtils.currentUserId());
         }
         List<TaskView> tasks = mappingService.toTaskViews(taskMapper.selectList(taskQuery));

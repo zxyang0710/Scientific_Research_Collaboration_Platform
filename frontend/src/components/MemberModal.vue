@@ -49,7 +49,7 @@ onMounted(async () => {
         <select id="member-user" v-model="form.userId" class="select">
           <option :value="null">请选择用户</option>
           <option v-for="user in users" :key="user.id" :value="user.id">
-            {{ user.realName }} · {{ user.department || '院系未填写' }} · {{ user.title || user.role }}
+            {{ user.realName }} · {{ user.department || '院系未填写' }} · {{ user.identity || user.role }}
           </option>
         </select>
       </div>

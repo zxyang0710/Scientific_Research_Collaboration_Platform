@@ -37,6 +37,9 @@ public class AuthService {
 
     @Transactional
     public LoginResponse register(RegisterRequest request) {
+        if (!"教师".equals(request.identity()) && !"学生".equals(request.identity())) {
+            throw new BusinessException("身份只能选择教师或学生");
+        }
         long count = userMapper.selectCount(Wrappers.<User>lambdaQuery()
                 .eq(User::getUsername, request.username()));
         if (count > 0) {
@@ -48,7 +51,7 @@ public class AuthService {
         user.setRealName(request.realName());
         user.setEmail(request.email());
         user.setDepartment(request.department());
-        user.setTitle(request.title());
+        user.setTitle(request.identity());
         user.setRole("RESEARCHER");
         user.setStatus(1);
         userMapper.insert(user);

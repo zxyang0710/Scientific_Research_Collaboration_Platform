@@ -363,7 +363,7 @@ onMounted(load)
               <UserAvatar :name="member.realName" :src="member.avatar" size="lg" />
               <div class="member-card__copy">
                 <strong>{{ member.realName }}</strong>
-                <span>{{ member.title || '科研成员' }} · {{ member.department || '院系未填写' }}</span>
+                <span>{{ member.identity || '科研成员' }} · {{ member.department || '院系未填写' }}</span>
                 <small>{{ roleMap[member.projectRole] || member.projectRole }}</small>
               </div>
               <button

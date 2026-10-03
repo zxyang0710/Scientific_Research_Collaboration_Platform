@@ -48,11 +48,11 @@ public class DataInitializer implements CommandLineRunner {
             return;
         }
 
-        User admin = user("admin", "系统管理员", "admin@campus.edu.cn", "信息中心", "平台管理员", "ADMIN");
-        User zhang = user("zhangwei", "张伟", "zhangwei@campus.edu.cn", "计算机科学与技术学院", "教授", "RESEARCHER");
-        User li = user("liming", "李明", "liming@campus.edu.cn", "计算机科学与技术学院", "副教授", "RESEARCHER");
-        User wang = user("wangfang", "王芳", "wangfang@campus.edu.cn", "人工智能研究院", "讲师", "RESEARCHER");
-        User chen = user("chenyu", "陈宇", "chenyu@campus.edu.cn", "计算机科学与技术学院", "研究生", "RESEARCHER");
+        User admin = user("admin", "系统管理员", "admin@campus.edu.cn", "信息中心", "管理员", "ADMIN");
+        User zhang = user("zhangwei", "张伟", "zhangwei@campus.edu.cn", "计算机科学与技术学院", "教师", "RESEARCHER");
+        User li = user("liming", "李明", "liming@campus.edu.cn", "计算机科学与技术学院", "教师", "RESEARCHER");
+        User wang = user("wangfang", "王芳", "wangfang@campus.edu.cn", "人工智能研究院", "教师", "RESEARCHER");
+        User chen = user("chenyu", "陈宇", "chenyu@campus.edu.cn", "计算机科学与技术学院", "学生", "RESEARCHER");
         userMapper.insert(admin);
         userMapper.insert(zhang);
         userMapper.insert(li);

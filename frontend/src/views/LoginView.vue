@@ -27,7 +27,7 @@ const form = reactive({
   realName: '',
   email: '',
   department: '',
-  title: ''
+  identity: ''
 })
 
 const isLogin = computed(() => mode.value === 'login')
@@ -51,7 +51,7 @@ async function submit() {
       await auth.login({ username: form.username, password: form.password })
       ElMessage.success('登录成功')
     } else {
-      if (!form.realName || !form.department || !form.title) {
+      if (!form.realName || !form.department || !form.identity) {
         ElMessage.warning('请完整填写姓名、所属院系和身份')
         return
       }
@@ -61,7 +61,7 @@ async function submit() {
         realName: form.realName,
         email: form.email,
         department: form.department,
-        title: form.title
+        identity: form.identity
       })
       ElMessage.success('注册成功')
     }
@@ -136,8 +136,8 @@ async function submit() {
               </select>
             </div>
             <div class="field">
-              <label for="title">身份</label>
-              <select id="title" v-model="form.title" class="select" required>
+              <label for="identity">身份</label>
+              <select id="identity" v-model="form.identity" class="select" required>
                 <option value="">请选择身份</option>
                 <option value="教师">教师</option>
                 <option value="学生">学生</option>

@@ -22,7 +22,7 @@ public final class AuthDtos {
             @NotBlank(message = "姓名不能为空") String realName,
             @Email(message = "邮箱格式不正确") String email,
             @NotBlank(message = "所属院系不能为空") String department,
-            @NotBlank(message = "身份不能为空") String title) {
+            @NotBlank(message = "身份不能为空") String identity) {
     }
 
     public record LoginResponse(String token, UserProfile user) {
@@ -36,7 +36,7 @@ public final class AuthDtos {
             String phone,
             String avatar,
             String department,
-            String title,
+            String identity,
             String role) {
     }
 }

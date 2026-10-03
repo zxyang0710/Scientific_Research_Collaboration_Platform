@@ -74,7 +74,7 @@ async function submit() {
         <select id="task-assignee" v-model="form.assigneeId" class="select">
           <option :value="null">暂不指定</option>
           <option v-for="member in members" :key="member.userId" :value="member.userId">
-            {{ member.realName }} · {{ member.department || member.title }}
+            {{ member.realName }} · {{ member.department || member.identity }}
           </option>
         </select>
       </div>

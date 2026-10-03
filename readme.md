@@ -75,7 +75,7 @@ npm run dev
 - `zhangwei`：项目负责人
 - `liming`：项目管理员
 - `wangfang`：项目成员
-- `chenyu`：研究生成员
+- `chenyu`：学生
 - `admin`：系统管理员
 
 ## 测试与构建

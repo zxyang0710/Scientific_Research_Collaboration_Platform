@@ -133,7 +133,7 @@ onUnmounted(() => document.removeEventListener('click', handleDocumentClick))
                 <UserRound :size="17" />
                 <div>
                   <strong>{{ auth.user?.realName }}</strong>
-                  <small>{{ auth.user?.title || auth.user?.role }}</small>
+                  <small>{{ auth.user?.identity || auth.user?.role }}</small>
                 </div>
               </div>
               <button class="profile__menu-item" type="button" @click="logout">

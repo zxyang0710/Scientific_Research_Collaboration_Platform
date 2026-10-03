@@ -43,7 +43,7 @@ export const paperStatusMap = {
 }
 
 export const roleMap = {
-  ADMIN: '平台管理员',
+  ADMIN: '管理员',
   LEADER: '项目负责人',
   MANAGER: '项目管理员',
   MEMBER: '项目成员'

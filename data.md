@@ -43,3 +43,13 @@ $env:JWT_SECRET="replace-with-a-long-random-secret"
 ## 演示账号
 
 数据库初始化后，应用会按初始化逻辑写入本地演示账号和业务数据。演示账号仅用于本地开发，生产环境请立即修改密码并替换 JWT 密钥。
+## 身份数据迁移
+
+将旧的教师职称统一为身份值：
+
+```sql
+UPDATE sys_user SET title = '管理员' WHERE role = 'ADMIN';
+UPDATE sys_user SET title = '学生' WHERE username = 'chenyu';
+UPDATE sys_user SET title = '教师'
+WHERE role <> 'ADMIN' AND title NOT IN ('教师', '学生', '管理员');
+```
