@@ -9,8 +9,8 @@ import com.campus.research.dto.TaskDtos.TaskView;
 import com.campus.research.entity.ProjectMember;
 import com.campus.research.entity.ResearchProject;
 import com.campus.research.entity.ResearchTask;
-import com.campus.research.entity.User;
 import com.campus.research.mapper.ProjectMemberMapper;
+import com.campus.research.mapper.ResearchProjectMapper;
 import com.campus.research.mapper.ResearchTaskMapper;
 import com.campus.research.mapper.UserMapper;
 import com.campus.research.security.SecurityUtils;
@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 public class TaskService {
 
     private final ResearchTaskMapper taskMapper;
+    private final ResearchProjectMapper projectMapper;
     private final ProjectMemberMapper memberMapper;
     private final UserMapper userMapper;
     private final ProjectAccessService accessService;
@@ -48,18 +49,37 @@ public class TaskService {
         }
 
         Long effectiveAssignee = Boolean.TRUE.equals(mine) ? SecurityUtils.currentUserId() : assigneeId;
-        if (isRestrictedStudent()) {
+        if (!SecurityUtils.isAdmin() && projectId != null && !isProjectManager(projectId)) {
             effectiveAssignee = SecurityUtils.currentUserId();
         }
 
+        Set<Long> managerProjects = projectMapper.selectList(
+                        Wrappers.<ResearchProject>lambdaQuery().in(!accessible.isEmpty(), ResearchProject::getId, accessible))
+                .stream()
+                .filter(project -> project.getLeaderId().equals(SecurityUtils.currentUserId())
+                        || memberMapper.selectCount(Wrappers.<ProjectMember>lambdaQuery()
+                        .eq(ProjectMember::getProjectId, project.getId())
+                        .eq(ProjectMember::getUserId, SecurityUtils.currentUserId())
+                        .in(ProjectMember::getProjectRole, "LEADER", "MANAGER")) > 0)
+                .map(ResearchProject::getId)
+                .collect(Collectors.toSet());
+
+        var query = Wrappers.<ResearchTask>lambdaQuery()
+                .eq(projectId != null, ResearchTask::getProjectId, projectId)
+                .in(!SecurityUtils.isAdmin() && projectId == null, ResearchTask::getProjectId, accessible)
+                .eq(StringUtils.hasText(status), ResearchTask::getStatus, status)
+                .eq(StringUtils.hasText(priority), ResearchTask::getPriority, priority);
+        if (effectiveAssignee != null) {
+            query.eq(ResearchTask::getAssigneeId, effectiveAssignee);
+        } else if (!SecurityUtils.isAdmin() && projectId == null && !managerProjects.isEmpty()) {
+            query.and(wrapper -> wrapper.in(ResearchTask::getProjectId, managerProjects)
+                    .or(or -> or.notIn(ResearchTask::getProjectId, managerProjects)
+                            .eq(ResearchTask::getAssigneeId, SecurityUtils.currentUserId())));
+        } else if (!SecurityUtils.isAdmin() && projectId == null) {
+            query.eq(ResearchTask::getAssigneeId, SecurityUtils.currentUserId());
+        }
         Page<ResearchTask> result = taskMapper.selectPage(new Page<>(page, size),
-                Wrappers.<ResearchTask>lambdaQuery()
-                        .eq(projectId != null, ResearchTask::getProjectId, projectId)
-                        .in(!SecurityUtils.isAdmin() && projectId == null, ResearchTask::getProjectId, accessible)
-                        .eq(StringUtils.hasText(status), ResearchTask::getStatus, status)
-                        .eq(StringUtils.hasText(priority), ResearchTask::getPriority, priority)
-                        .eq(effectiveAssignee != null, ResearchTask::getAssigneeId, effectiveAssignee)
-                        .orderByAsc(ResearchTask::getStatus)
+                query.orderByAsc(ResearchTask::getStatus)
                         .orderByAsc(ResearchTask::getDeadline)
                         .orderByDesc(ResearchTask::getUpdatedAt));
         return new PageResult<>(mappingService.toTaskViews(result.getRecords()),
@@ -69,7 +89,8 @@ public class TaskService {
     public TaskView get(Long id) {
         ResearchTask task = requireTask(id);
         accessService.requireMember(task.getProjectId());
-        if (isRestrictedStudent() && !SecurityUtils.currentUserId().equals(task.getAssigneeId())) {
+        if (!SecurityUtils.isAdmin() && !isProjectManager(task.getProjectId())
+                && !SecurityUtils.currentUserId().equals(task.getAssigneeId())) {
             throw new BusinessException(403, "只能查看分配给自己的任务");
         }
         return mappingService.toTaskViews(List.of(task)).getFirst();
@@ -178,11 +199,17 @@ public class TaskService {
         }
     }
 
-    private boolean isRestrictedStudent() {
-        if (SecurityUtils.isAdmin()) {
+    private boolean isProjectManager(Long projectId) {
+        ResearchProject project = projectMapper.selectById(projectId);
+        if (project == null) {
             return false;
         }
-        User user = userMapper.selectById(SecurityUtils.currentUserId());
-        return user != null && "学生".equals(user.getTitle());
+        if (SecurityUtils.isAdmin() || project.getLeaderId().equals(SecurityUtils.currentUserId())) {
+            return true;
+        }
+        return memberMapper.selectCount(Wrappers.<ProjectMember>lambdaQuery()
+                .eq(ProjectMember::getProjectId, projectId)
+                .eq(ProjectMember::getUserId, SecurityUtils.currentUserId())
+                .in(ProjectMember::getProjectRole, "LEADER", "MANAGER")) > 0;
     }
 }

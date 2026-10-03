@@ -330,6 +330,9 @@ onMounted(load)
                   <td><StatusBadge :value="task.status" :map="taskStatusMap" /></td>
                   <td>
                     <div class="row-actions">
+                      <button v-if="isManager" class="icon-btn" type="button" title="编辑任务" @click="openTask(task)">
+                        <Edit3 :size="15" />
+                      </button>
                       <button v-if="isManager" class="icon-btn danger" type="button" title="删除任务" @click="removeTask(task)">
                         <Trash2 :size="15" />
                       </button>
