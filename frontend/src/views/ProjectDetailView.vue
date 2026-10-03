@@ -283,6 +283,9 @@ onMounted(load)
                 <span>{{ task.assigneeName }} · 截止 {{ formatDate(task.deadline) }}</span>
               </div>
               <StatusBadge :value="task.status" :map="taskStatusMap" />
+              <button v-if="isManager" class="icon-btn" type="button" title="编辑任务" @click="openTask(task)">
+                <Edit3 :size="15" />
+              </button>
             </article>
           </div>
         </article>
