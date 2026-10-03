@@ -6,6 +6,7 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleDashed,
+  Edit3,
   ListTodo,
   Search
 } from 'lucide-vue-next'
@@ -13,8 +14,10 @@ import { projectApi, taskApi } from '../api'
 import StatusBadge from '../components/StatusBadge.vue'
 import TaskFormModal from '../components/TaskFormModal.vue'
 import UserAvatar from '../components/UserAvatar.vue'
+import { useAuthStore } from '../stores/auth'
 import { formatDate, priorityMap, taskStatusMap } from '../utils/format'
 
+const auth = useAuthStore()
 const loading = ref(true)
 const tasks = ref([])
 const projects = ref([])
@@ -77,6 +80,14 @@ async function load() {
 function search() {
   filters.page = 1
   load()
+}
+
+function canEditTask(task) {
+  if (auth.user?.role === 'ADMIN') return true
+  const project = projects.value.find((item) => Number(item.id) === Number(task.projectId))
+  return project?.leaderId === auth.user?.id
+    || project?.projectRole === 'LEADER'
+    || project?.projectRole === 'MANAGER'
 }
 
 async function openCreate(task = null) {
@@ -178,6 +189,15 @@ onMounted(load)
             >
               <div class="task-card__head">
                 <StatusBadge :value="task.priority" :map="priorityMap" />
+                <button
+                  v-if="canEditTask(task)"
+                  class="icon-btn task-card__edit"
+                  type="button"
+                  title="编辑任务"
+                  @click.stop="openCreate(task)"
+                >
+                  <Edit3 :size="14" />
+                </button>
               </div>
               <h3>{{ task.title }}</h3>
               <p>{{ task.projectName }}</p>
