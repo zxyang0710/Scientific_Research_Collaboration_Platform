@@ -19,7 +19,6 @@ const form = reactive({
   source: '',
   leaderId: null,
   status: 'PLANNING',
-  progress: 0,
   startDate: '',
   endDate: '',
   budget: null
@@ -37,7 +36,6 @@ watch(() => props.project, (value) => {
       source: value.source,
       leaderId: value.leaderId,
       status: value.status,
-      progress: value.progress,
       startDate: value.startDate || '',
       endDate: value.endDate || '',
       budget: value.budget
@@ -58,7 +56,6 @@ async function submit() {
   try {
     const payload = {
       ...form,
-      progress: Number(form.progress || 0),
       budget: form.budget === '' || form.budget == null ? null : Number(form.budget),
       startDate: form.startDate || null,
       endDate: form.endDate || null
@@ -114,10 +111,6 @@ onMounted(async () => {
           <option value="PAUSED">已暂停</option>
           <option value="COMPLETED">已结项</option>
         </select>
-      </div>
-      <div class="field">
-        <label for="project-progress">完成进度（%）</label>
-        <input id="project-progress" v-model.number="form.progress" class="input" type="number" min="0" max="100" />
       </div>
       <div class="field">
         <label for="project-start">开始日期</label>

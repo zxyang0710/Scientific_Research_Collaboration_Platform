@@ -64,11 +64,21 @@ public class MappingService {
                     project.getDescription(), project.getCategory(), project.getSource(),
                     project.getLeaderId(),
                     users.containsKey(project.getLeaderId()) ? users.get(project.getLeaderId()).getRealName() : "未知",
-                    project.getStatus(), project.getProgress(), project.getStartDate(), project.getEndDate(),
+                    project.getStatus(), calculateProgress(tasks), project.getStartDate(), project.getEndDate(),
                     project.getBudget(), (long) members.size(), (long) tasks.size(),
                     tasks.stream().filter(task -> "DONE".equals(task.getStatus())).count(),
                     currentRole, project.getUpdatedAt());
         }).toList();
+    }
+
+    private int calculateProgress(List<ResearchTask> tasks) {
+        if (tasks.isEmpty()) {
+            return 0;
+        }
+        long completed = tasks.stream()
+                .filter(task -> "DONE".equals(task.getStatus()))
+                .count();
+        return (int) Math.round(completed * 100.0 / tasks.size());
     }
 
     public List<TaskView> toTaskViews(List<ResearchTask> tasks) {

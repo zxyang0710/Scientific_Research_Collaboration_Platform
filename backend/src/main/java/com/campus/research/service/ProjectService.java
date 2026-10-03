@@ -131,7 +131,6 @@ public class ProjectService {
         apply(project, request);
         project.setLeaderId(leaderId);
         project.setStatus(StringUtils.hasText(request.status()) ? request.status() : "PLANNING");
-        project.setProgress(request.progress() == null ? 0 : request.progress());
         projectMapper.insert(project);
         addMember(project.getId(), leaderId, "LEADER", false);
         if (!leaderId.equals(SecurityUtils.currentUserId())) {
@@ -284,7 +283,6 @@ public class ProjectService {
         project.setCategory(request.category());
         project.setSource(request.source());
         project.setStatus(request.status());
-        project.setProgress(request.progress());
         project.setStartDate(request.startDate());
         project.setEndDate(request.endDate());
         project.setBudget(request.budget());

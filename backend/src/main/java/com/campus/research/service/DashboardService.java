@@ -82,7 +82,7 @@ public class DashboardService {
                 projects.stream().filter(project -> "IN_PROGRESS".equals(project.getStatus())).count(),
                 tasks.size(), tasks.stream().filter(task -> "DONE".equals(task.getStatus())).count(),
                 overdue, paperCount, notificationService.unreadCount(), recentProjects, myTaskViews,
-                activities(projectIds), taskDistribution(tasks), projectProgress(projects));
+                activities(projectIds), taskDistribution(tasks), projectProgress(projects, tasks));
     }
 
     private List<ActivityItem> activities(Set<Long> projectIds) {
@@ -137,9 +137,19 @@ public class DashboardService {
                 new ChartItem("已阻塞", counts.getOrDefault("BLOCKED", 0L)));
     }
 
-    private List<ChartItem> projectProgress(List<ResearchProject> projects) {
+    private List<ChartItem> projectProgress(List<ResearchProject> projects, List<ResearchTask> tasks) {
+        Map<Long, List<ResearchTask>> tasksByProject = tasks.stream()
+                .collect(Collectors.groupingBy(ResearchTask::getProjectId));
         return projects.stream().limit(6)
-                .map(project -> new ChartItem(project.getName(), project.getProgress()))
+                .map(project -> {
+                    List<ResearchTask> projectTasks = tasksByProject.getOrDefault(project.getId(), List.of());
+                    long total = projectTasks.size();
+                    long completed = projectTasks.stream()
+                            .filter(task -> "DONE".equals(task.getStatus()))
+                            .count();
+                    int progress = total == 0 ? 0 : (int) Math.round(completed * 100.0 / total);
+                    return new ChartItem(project.getName(), progress);
+                })
                 .toList();
     }
 
