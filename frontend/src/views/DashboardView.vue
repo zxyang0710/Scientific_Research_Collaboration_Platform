@@ -120,7 +120,6 @@ onMounted(load)
       <div>
         <p class="dashboard-hero__eyebrow">RESEARCH OVERVIEW</p>
         <h2>{{ greeting }}，{{ auth.user?.realName }}</h2>
-        <p>这里是您参与的科研协作进展，优先关注临近截止与逾期任务。</p>
       </div>
       <button class="btn btn-primary" type="button" @click="router.push('/projects')">
         查看科研项目
