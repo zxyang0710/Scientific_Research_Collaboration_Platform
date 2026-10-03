@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ArrowRight, Eye, EyeOff, LockKeyhole, UserRound } from 'lucide-vue-next'
 import { ElMessage } from '../utils/message'
 import { useAuthStore } from '../stores/auth'
+import AppLogo from '../components/AppLogo.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -64,8 +65,11 @@ async function submit() {
 <template>
   <main class="auth-page">
     <section class="auth-scene">
+      <div class="auth-scene__top">
+        <AppLogo light />
+      </div>
       <div class="auth-scene__brand">
-        <p class="auth-scene__eyebrow">CAMPUS RESEARCH WORKSPACE</p>
+        <p class="auth-scene__english">CAMPUS RESEARCH<br />COLLABORATION</p>
         <h1>校园科研协作平台</h1>
       </div>
     </section>
@@ -142,21 +146,22 @@ async function submit() {
 
 <style scoped>
 .auth-page { display: grid; grid-template-columns: minmax(460px, 1.08fr) minmax(420px, 0.92fr); min-height: 100vh; background: white; }
-.auth-scene { position: relative; display: flex; align-items: center; overflow: hidden; padding: 48px; background: var(--ink-950); color: white; }
+.auth-scene { position: relative; display: flex; flex-direction: column; overflow: hidden; padding: 34px 48px 48px; background: var(--ink-950); color: white; }
 .auth-scene::before, .auth-scene::after { position: absolute; content: ""; border: 1px solid rgba(255,255,255,.08); border-radius: 50%; }
 .auth-scene::before { top: -210px; right: -170px; width: 520px; height: 520px; }
 .auth-scene::after { right: -80px; bottom: -280px; width: 470px; height: 470px; }
-.auth-scene__brand { position: relative; z-index: 1; }
-.auth-scene__eyebrow { margin-bottom: 18px; color: #73cfc2; font-size: 11px; font-weight: 700; letter-spacing: .14em; }
+.auth-scene__top, .auth-scene__brand { position: relative; z-index: 1; }
+.auth-scene__brand { margin: auto 0; }
+.auth-scene__english { margin-bottom: 18px; color: #73cfc2; font-size: clamp(24px, 2.6vw, 38px); font-weight: 700; letter-spacing: .04em; line-height: 1.15; }
 .auth-scene h1 { font-size: clamp(32px, 3.5vw, 50px); line-height: 1.28; }
-.auth-panel { display: grid; place-items: center; padding: 48px; }
-.auth-card { width: min(420px, 100%); }
+.auth-panel { display: grid; place-items: center; padding: 48px; background: var(--canvas); }
+.auth-card { width: min(420px, 100%); padding: 34px; border: 1px solid var(--ink-200); border-radius: 10px; background: var(--paper); box-shadow: var(--shadow-md); }
 .auth-card__head h2 { color: var(--ink-950); font-size: 28px; }
 .auth-card__head p { margin-top: 8px; color: var(--ink-500); }
 .auth-tabs { display: flex; gap: 24px; margin-top: 32px; border-bottom: 1px solid var(--line); }
 .auth-tabs button { position: relative; padding: 0 0 12px; color: var(--ink-500); font-size: 14px; font-weight: 700; }
 .auth-tabs button.active { color: var(--ink-950); }
-.auth-tabs button.active::after { position: absolute; right: 0; bottom: -1px; left: 0; height: 2px; background: var(--teal-500); content: ""; }
+.auth-tabs button.active::after { position: absolute; right: 0; bottom: -1px; left: 0; height: 2px; background: var(--teal-600); content: ""; }
 .auth-form { display: grid; gap: 18px; margin-top: 26px; }
 .field { display: grid; gap: 8px; }
 .field label { color: var(--ink-700); font-size: 13px; font-weight: 700; }
@@ -165,12 +170,12 @@ async function submit() {
 .input-icon > svg { position: absolute; top: 50%; left: 13px; color: var(--ink-400); transform: translateY(-50%); }
 .input-icon .input { padding-left: 40px; }
 .input, .select { width: 100%; min-height: 42px; border: 1px solid var(--line); border-radius: 6px; background: white; color: var(--ink-950); font: inherit; outline: none; padding: 10px 12px; }
-.input:focus, .select:focus { border-color: var(--teal-500); box-shadow: 0 0 0 3px rgba(45,166,148,.12); }
+.input:focus, .select:focus { border-color: var(--teal-600); box-shadow: 0 0 0 3px rgba(21,129,124,.14); }
 .password-toggle { position: absolute; top: 50%; right: 10px; display: grid; width: 28px; height: 28px; place-items: center; color: var(--ink-400); transform: translateY(-50%); }
 .auth-submit { display: inline-flex; width: 100%; justify-content: center; gap: 8px; margin-top: 6px; }
 @media (max-width: 860px) {
   .auth-page { display: block; }
-  .auth-scene { min-height: 220px; padding: 36px 28px; }
+  .auth-scene { min-height: 280px; padding: 30px 28px 36px; }
   .auth-scene h1 { font-size: 34px; }
   .auth-panel { padding: 36px 24px 48px; }
 }

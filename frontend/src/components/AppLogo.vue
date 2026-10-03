@@ -13,8 +13,7 @@ defineProps({
       <FlaskConical :size="21" :stroke-width="2.2" />
     </span>
     <span v-if="!compact" class="app-logo__copy">
-      <strong>研协</strong>
-      <small>校园科研协作平台</small>
+      <strong>校园科研协作平台</strong>
     </span>
   </div>
 </template>
@@ -41,21 +40,13 @@ defineProps({
 
 .app-logo__copy {
   display: flex;
-  flex-direction: column;
   min-width: 0;
 }
 
 .app-logo__copy strong {
   color: var(--ink-950);
-  font-size: 19px;
+  font-size: 16px;
   line-height: 1.1;
-  letter-spacing: 0.08em;
-}
-
-.app-logo__copy small {
-  margin-top: 2px;
-  color: var(--ink-500);
-  font-size: 10px;
   white-space: nowrap;
 }
 
@@ -66,9 +57,5 @@ defineProps({
 
 .app-logo--light .app-logo__copy strong {
   color: white;
-}
-
-.app-logo--light .app-logo__copy small {
-  color: rgba(255, 255, 255, 0.62);
 }
 </style>
