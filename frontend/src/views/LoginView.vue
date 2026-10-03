@@ -77,7 +77,7 @@ async function submit() {
     <section class="auth-scene">
       <div class="auth-scene__top"><AppLogo light /></div>
       <div class="auth-scene__brand">
-        <p class="auth-scene__english">CAMPUS RESEARCH<br />COLLABORATION</p>
+        <p class="auth-scene__english">CAMPUS RESEARCH COLLABORATION</p>
         <h1>校园科研协作平台</h1>
       </div>
     </section>
@@ -163,7 +163,7 @@ async function submit() {
 .auth-scene::after { right: -80px; bottom: -280px; width: 470px; height: 470px; }
 .auth-scene__top, .auth-scene__brand { position: relative; z-index: 1; }
 .auth-scene__brand { margin: auto 0; }
-.auth-scene__english { margin-bottom: 18px; color: #73cfc2; font-size: clamp(24px, 2.6vw, 38px); font-weight: 700; letter-spacing: .04em; line-height: 1.15; }
+.auth-scene__english { margin-bottom: 18px; color: #73cfc2; font-size: clamp(18px, 2.1vw, 32px); font-weight: 700; letter-spacing: .04em; line-height: 1.15; white-space: nowrap; }
 .auth-scene h1 { font-size: clamp(32px, 3.5vw, 50px); line-height: 1.28; }
 .auth-panel { display: grid; place-items: center; padding: 48px; background: var(--canvas); }
 .auth-card { width: min(420px, 100%); padding: 34px; border: 1px solid var(--ink-200); border-radius: 10px; background: var(--paper); box-shadow: var(--shadow-md); }

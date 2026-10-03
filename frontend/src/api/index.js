@@ -51,6 +51,8 @@ export const fileApi = {
     onUploadProgress
   }),
   remove: (id) => http.delete(`/files/${id}`),
+  download: (id) => http.get(`/files/${id}/download`, { responseType: 'blob' }),
+  view: (id) => http.get(`/files/${id}/view`, { responseType: 'blob' }),
   downloadUrl: (id) => `/api/files/${id}/download`
 }
 

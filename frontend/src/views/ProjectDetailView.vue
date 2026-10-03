@@ -155,6 +155,13 @@ async function loadFiles() {
   detail.value.files = result.records
 }
 
+async function openProjectFile(file) {
+  const blob = await fileApi.view(file.id)
+  const url = URL.createObjectURL(blob)
+  window.open(url, '_blank', 'noopener,noreferrer')
+  window.setTimeout(() => URL.revokeObjectURL(url), 60000)
+}
+
 function switchTab(tab) {
   activeTab.value = tab
   if (tab === 'files' && !detail.value.files) loadFiles()
@@ -489,7 +496,7 @@ onMounted(load)
             <article v-for="file in detail.files" :key="file.id" class="file-row">
               <span class="file-row__icon"><FileText :size="18" /></span>
               <div>
-                <a :href="fileApi.downloadUrl(file.id)" class="file-row__name">{{ file.originalName }}</a>
+                <button type="button" class="file-row__name" @click="openProjectFile(file)">{{ file.originalName }}</button>
                 <p>{{ file.description || '暂无文件说明' }}</p>
                 <small>{{ formatSize(file.fileSize) }} · {{ file.uploaderName }} · {{ formatDate(file.createdAt) }}</small>
               </div>
@@ -1007,12 +1014,18 @@ onMounted(load)
 
 .file-row__name {
   display: block;
+  width: 100%;
   overflow: hidden;
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: var(--ink-900);
   font-size: 12px;
   font-weight: 700;
+  text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .file-row__name:hover {

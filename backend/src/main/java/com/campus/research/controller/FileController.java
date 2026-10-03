@@ -49,12 +49,31 @@ public class FileController {
     @GetMapping("/{id}/download")
     public ResponseEntity<org.springframework.core.io.Resource> download(@PathVariable Long id) {
         DownloadFile download = fileService.download(id);
+        return fileResponse(download, true);
+    }
+
+    @GetMapping("/{id}/view")
+    public ResponseEntity<org.springframework.core.io.Resource> view(@PathVariable Long id) {
+        DownloadFile download = fileService.download(id);
+        return fileResponse(download, false);
+    }
+
+    private ResponseEntity<org.springframework.core.io.Resource> fileResponse(DownloadFile download, boolean attachment) {
         String encoded = java.net.URLEncoder.encode(download.filename(), StandardCharsets.UTF_8)
                 .replace("+", "%20");
+        MediaType contentType = MediaType.APPLICATION_OCTET_STREAM;
+        try {
+            String detectedType = download.resource().getURL().openConnection().getContentType();
+            if (detectedType != null) {
+                contentType = MediaType.parseMediaType(detectedType);
+            }
+        } catch (Exception ignored) {
+            // Use binary content when the file type cannot be detected.
+        }
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename*=UTF-8''" + encoded)
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                        (attachment ? "attachment" : "inline") + "; filename*=UTF-8''" + encoded)
+                .contentType(contentType)
                 .body(download.resource());
     }
 

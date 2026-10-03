@@ -29,7 +29,6 @@ const filters = reactive({
 })
 
 const selectedSize = computed(() => files.value.reduce((sum, file) => sum + (file.fileSize || 0), 0))
-
 const categoryLabels = {
   DOCUMENT: '研究文档',
   DATA: '实验数据',
@@ -68,8 +67,33 @@ function search() {
 async function remove(file) {
   if (!window.confirm(`确定删除文件“${file.originalName}”吗？`)) return
   await fileApi.remove(file.id)
+  files.value = files.value.filter((item) => item.id !== file.id)
+  total.value = Math.max(0, total.value - 1)
+  pages.value = Math.max(1, Math.ceil(total.value / filters.size))
+  if (!files.value.length && filters.page > 1) {
+    filters.page -= 1
+  }
   ElMessage.success('文件已删除')
-  load()
+  await load()
+}
+
+async function openFile(file) {
+  const blob = await fileApi.view(file.id)
+  const url = URL.createObjectURL(blob)
+  window.open(url, '_blank', 'noopener,noreferrer')
+  window.setTimeout(() => URL.revokeObjectURL(url), 60000)
+}
+
+async function downloadFile(file) {
+  const blob = await fileApi.download(file.id)
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = file.originalName
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
 function changePage(page) {
@@ -150,7 +174,7 @@ onMounted(load)
                   <div class="file-name">
                     <span><FileText :size="17" /></span>
                     <div>
-                      <div class="table-primary">{{ file.originalName }}</div>
+                      <button class="table-primary file-link" type="button" @click="openFile(file)">{{ file.originalName }}</button>
                       <div class="table-secondary">{{ file.description || '暂无说明' }}</div>
                     </div>
                   </div>
@@ -162,9 +186,9 @@ onMounted(load)
                 <td>{{ formatDateTime(file.createdAt) }}</td>
                 <td>
                   <div class="row-actions">
-                    <a class="icon-btn" :href="fileApi.downloadUrl(file.id)" title="下载文件">
+                    <button class="icon-btn" type="button" title="下载文件" @click="downloadFile(file)">
                       <Download :size="16" />
-                    </a>
+                    </button>
                     <button class="icon-btn danger" type="button" title="删除文件" @click="remove(file)">
                       <Trash2 :size="16" />
                     </button>
@@ -194,90 +218,19 @@ onMounted(load)
 </template>
 
 <style scoped>
-.file-stats {
-  margin-bottom: 16px;
-}
-
-.file-stat {
-  display: flex;
-  align-items: center;
-  gap: 13px;
-  padding: 16px;
-}
-
-.file-stat > span {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 7px;
-  background: var(--teal-100);
-  color: var(--teal-700);
-}
-
-.file-stat > div {
-  display: flex;
-  flex-direction: column;
-}
-
-.file-stat strong {
-  color: var(--ink-950);
-  font-size: 20px;
-  line-height: 1.2;
-}
-
-.file-stat small {
-  margin-top: 2px;
-  color: var(--ink-500);
-  font-size: 10px;
-}
-
-.file-toolbar {
-  display: grid;
-  grid-template-columns: minmax(250px, 1fr) 220px 160px auto;
-  gap: 10px;
-  padding: 14px;
-  margin-bottom: 16px;
-}
-
-.file-name {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.file-name > span {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  background: var(--blue-100);
-  color: var(--blue-700);
-}
-
-.row-actions {
-  display: flex;
-  gap: 2px;
-}
-
-.icon-btn.danger:hover {
-  background: var(--red-100);
-  color: var(--red-700);
-}
-
-@media (max-width: 900px) {
-  .file-toolbar {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (max-width: 600px) {
-  .file-toolbar {
-    grid-template-columns: 1fr;
-  }
-}
+.file-stats { margin-bottom: 16px; }
+.file-stat { display: flex; align-items: center; gap: 13px; padding: 16px; }
+.file-stat > span { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 7px; background: var(--teal-100); color: var(--teal-700); }
+.file-stat > div { display: flex; flex-direction: column; }
+.file-stat strong { color: var(--ink-950); font-size: 20px; line-height: 1.2; }
+.file-stat small { margin-top: 2px; color: var(--ink-500); font-size: 10px; }
+.file-toolbar { display: grid; grid-template-columns: minmax(250px, 1fr) 220px 160px auto; gap: 10px; padding: 14px; margin-bottom: 16px; }
+.file-name { display: flex; align-items: center; gap: 10px; }
+.file-name > span { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; width: 32px; height: 32px; border-radius: 6px; background: var(--blue-100); color: var(--blue-700); }
+.file-link { display: block; max-width: 340px; overflow: hidden; padding: 0; background: transparent; color: var(--ink-950); text-align: left; text-overflow: ellipsis; white-space: nowrap; }
+.file-link:hover { color: var(--teal-700); text-decoration: underline; }
+.row-actions { display: flex; gap: 2px; }
+.icon-btn.danger:hover { background: var(--red-100); color: var(--red-700); }
+@media (max-width: 900px) { .file-toolbar { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .file-toolbar { grid-template-columns: 1fr; } }
 </style>
