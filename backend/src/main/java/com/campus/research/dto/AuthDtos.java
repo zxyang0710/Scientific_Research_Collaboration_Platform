@@ -21,8 +21,8 @@ public final class AuthDtos {
             @Size(min = 6, max = 50, message = "密码长度应为 6-50 个字符") String password,
             @NotBlank(message = "姓名不能为空") String realName,
             @Email(message = "邮箱格式不正确") String email,
-            String department,
-            String title) {
+            @NotBlank(message = "所属院系不能为空") String department,
+            @NotBlank(message = "身份不能为空") String title) {
     }
 
     public record LoginResponse(String token, UserProfile user) {
