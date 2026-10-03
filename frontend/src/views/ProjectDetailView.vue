@@ -118,7 +118,7 @@ async function removeFile(file) {
   if (!window.confirm(`确定删除文件“${file.originalName}”吗？`)) return
   await fileApi.remove(file.id)
   ElMessage.success('文件已删除')
-  load()
+  await loadFiles()
 }
 
 function chooseFile(event) {
@@ -144,7 +144,7 @@ async function uploadFile() {
     ElMessage.success('文件上传成功')
     selectedFile.value = null
     uploadDescription.value = ''
-    await load()
+    await loadFiles()
   } finally {
     uploading.value = false
   }
